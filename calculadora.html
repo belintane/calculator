@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Simples</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #667eea 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .calculator {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 35px;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.1),
+                0 8px 32px rgba(31, 38, 135, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 450px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calculator::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        }
+
+        .display {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1));
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            text-align: right;
+            font-size: 2.2rem;
+            font-weight: 300;
+            color: white;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                inset 0 2px 4px rgba(0, 0, 0, 0.2),
+                0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 18px 12px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+            transition: all 0.1s;
+        }
+
+        .btn-number {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+        }
+
+        .btn-operator {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.9), rgba(255, 152, 0, 0.8));
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+        }
+
+        .btn-operator:hover {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 1), rgba(255, 152, 0, 0.9));
+            box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
+        }
+
+        .btn-equals {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.9), rgba(56, 142, 60, 0.8));
+            grid-column: span 2;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-equals:hover {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 1), rgba(56, 142, 60, 0.9));
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, rgba(244, 67, 54, 0.9), rgba(198, 40, 40, 0.8));
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+        }
+
+        .btn-clear:hover {
+            background: linear-gradient(135deg, rgba(244, 67, 54, 1), rgba(198, 40, 40, 0.9));
+            box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4);
+        }
+
+        .btn-scientific {
+            background: linear-gradient(135deg, rgba(96, 125, 139, 0.9), rgba(69, 90, 102, 0.8));
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(96, 125, 139, 0.3);
+        }
+
+        .btn-scientific:hover {
+            background: linear-gradient(135deg, rgba(96, 125, 139, 1), rgba(69, 90, 102, 0.9));
+            box-shadow: 0 6px 20px rgba(96, 125, 139, 0.4);
+        }
+
+        .btn-financial {
+            background: linear-gradient(135deg, rgba(255, 87, 34, 0.9), rgba(230, 74, 25, 0.8));
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.3);
+        }
+
+        .btn-financial:hover {
+            background: linear-gradient(135deg, rgba(255, 87, 34, 1), rgba(230, 74, 25, 0.9));
+            box-shadow: 0 6px 20px rgba(255, 87, 34, 0.4);
+        }
+
+        .financial-section {
+            margin-top: 30px;
+            border-top: 2px solid rgba(255, 255, 255, 0.3);
+            padding-top: 25px;
+            position: relative;
+        }
+
+        .financial-section::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+        }
+
+        .financial-title {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            letter-spacing: 0.5px;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 25px;
+            font-size: 2rem;
+            font-weight: 300;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            letter-spacing: 1px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>Calculadora</h1>
+        <div class="display" id="display">0</div>
+        <div class="buttons">
+            <button class="btn btn-clear" onclick="clearDisplay()">C</button>
+            <button class="btn btn-operator" onclick="setOperator('+')">+</button>
+            <button class="btn btn-operator" onclick="setOperator('-')">-</button>
+            <button class="btn btn-operator" onclick="setOperator('×')">×</button>
+            <button class="btn btn-operator" onclick="setOperator('÷')">÷</button>
+            
+            <button class="btn btn-scientific" onclick="squareRoot()">√</button>
+            <button class="btn btn-scientific" onclick="power()">x^y</button>
+            <button class="btn btn-scientific" onclick="logarithm()">log</button>
+            <button class="btn btn-equals" onclick="calculate()" style="grid-column: span 2;">=</button>
+            
+            <button class="btn btn-number" onclick="appendNumber('7')">7</button>
+            <button class="btn btn-number" onclick="appendNumber('8')">8</button>
+            <button class="btn btn-number" onclick="appendNumber('9')">9</button>
+            
+            <button class="btn btn-number" onclick="appendNumber('4')">4</button>
+            <button class="btn btn-number" onclick="appendNumber('5')">5</button>
+            <button class="btn btn-number" onclick="appendNumber('6')">6</button>
+            
+            <button class="btn btn-number" onclick="appendNumber('1')">1</button>
+            <button class="btn btn-number" onclick="appendNumber('2')">2</button>
+            <button class="btn btn-number" onclick="appendNumber('3')">3</button>
+            
+            <button class="btn btn-number" onclick="appendNumber('0')" style="grid-column: span 2;">0</button>
+        </div>
+
+        <!-- Seção Financeira -->
+        <div class="financial-section">
+            <div class="financial-title">Funções Financeiras</div>
+            <div class="buttons">
+                <button class="btn btn-financial" onclick="setInterestRate()">i</button>
+                <button class="btn btn-financial" onclick="setPeriods()">n</button>
+                <button class="btn btn-financial" onclick="calculatePMT()">PMT</button>
+                <button class="btn btn-financial" onclick="setPresentValue()">PV</button>
+                <button class="btn btn-financial" onclick="setFutureValue()">FV</button>
+                
+                <button class="btn btn-financial" onclick="setInitialCF()">CFo</button>
+                <button class="btn btn-financial" onclick="changeSign()">CHS</button>
+                <button class="btn btn-financial" onclick="setIntermediateCF()">CFi</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentNumber = '';
+        let previousNumber = '';
+        let operator = '';
+        let shouldResetDisplay = false;
+
+        // Variáveis financeiras
+        let interestRate = 0;      // Taxa de juros (i)
+        let periods = 0;           // Número de períodos (n)
+        let presentValue = 0;      // Valor presente (PV)
+        let futureValue = 0;       // Valor futuro (FV)
+        let payment = 0;           // Pagamento (PMT)
+        let initialCF = 0;         // Fluxo de caixa inicial (CFo)
+        let intermediateCF = 0;    // Fluxo de caixa intermediário (CFi)
+
+        const display = document.getElementById('display');
+
+        // Configuração de áudio
+        let audioContext;
+        
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playButtonSound(frequency = 800, duration = 0.1) {
+            initAudio();
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        function playEqualSound() {
+            initAudio();
+            
+            // Som especial com acorde para o botão de igual
+            const frequencies = [523.25, 659.25, 783.99]; // C5, E5, G5
+            const duration = 0.3;
+            
+            frequencies.forEach((freq, index) => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + index * 0.05);
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime + index * 0.05);
+                gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + index * 0.05 + 0.1);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + index * 0.05 + duration);
+                
+                oscillator.start(audioContext.currentTime + index * 0.05);
+                oscillator.stop(audioContext.currentTime + index * 0.05 + duration);
+            });
+        }
+
+        function updateDisplay(value) {
+            display.textContent = value;
+        }
+
+        function appendNumber(number) {
+            playButtonSound(600 + parseInt(number) * 50); // Som diferente para cada número
+            
+            if (shouldResetDisplay) {
+                currentNumber = '';
+                shouldResetDisplay = false;
+            }
+            
+            if (currentNumber === '0' && number !== '.') {
+                currentNumber = number;
+            } else {
+                currentNumber += number;
+            }
+            
+            updateDisplay(currentNumber);
+        }
+
+        function setOperator(op) {
+            if (currentNumber === '') return;
+            
+            playButtonSound(1000); // Som para operadores
+            
+            if (previousNumber !== '' && operator !== '') {
+                calculate();
+            }
+            
+            previousNumber = currentNumber;
+            operator = op;
+            shouldResetDisplay = true;
+        }
+
+        function calculate() {
+            if (previousNumber === '' || currentNumber === '' || operator === '') return;
+            
+            playEqualSound(); // Som especial para o botão de igual
+            
+            const prev = parseFloat(previousNumber);
+            const current = parseFloat(currentNumber);
+            let result;
+            
+            switch (operator) {
+                case '+':
+                    result = prev + current;
+                    break;
+                case '-':
+                    result = prev - current;
+                    break;
+                case '×':
+                    result = prev * current;
+                    break;
+                case '÷':
+                    if (current === 0) {
+                        alert('Erro: Divisão por zero!');
+                        return;
+                    }
+                    result = prev / current;
+                    break;
+                case '^':
+                    result = Math.pow(prev, current);
+                    break;
+                default:
+                    return;
+            }
+            
+            currentNumber = result.toString();
+            updateDisplay(currentNumber);
+            previousNumber = '';
+            operator = '';
+            shouldResetDisplay = true;
+        }
+
+        function clearDisplay() {
+            playButtonSound(400); // Som mais grave para limpar
+            
+            currentNumber = '';
+            previousNumber = '';
+            operator = '';
+            shouldResetDisplay = false;
+            updateDisplay('0');
+        }
+
+        function squareRoot() {
+            if (currentNumber === '') return;
+            
+            playButtonSound(1200); // Som para funções científicas
+            
+            const num = parseFloat(currentNumber);
+            if (num < 0) {
+                alert('Erro: Raiz quadrada de número negativo!');
+                return;
+            }
+            
+            const result = Math.sqrt(num);
+            currentNumber = result.toString();
+            updateDisplay(currentNumber);
+            shouldResetDisplay = true;
+        }
+
+        function power() {
+            if (currentNumber === '') return;
+            
+            playButtonSound(1200); // Som para funções científicas
+            
+            if (previousNumber !== '' && operator !== '') {
+                calculate();
+            }
+            
+            previousNumber = currentNumber;
+            operator = '^';
+            shouldResetDisplay = true;
+        }
+
+        function logarithm() {
+            if (currentNumber === '') return;
+            
+            playButtonSound(1200); // Som para funções científicas
+            
+            const num = parseFloat(currentNumber);
+            if (num <= 0) {
+                alert('Erro: Logaritmo de número não positivo!');
+                return;
+            }
+            
+            const result = Math.log10(num);
+            currentNumber = result.toString();
+            updateDisplay(currentNumber);
+            shouldResetDisplay = true;
+        }
+
+        // Funções Financeiras
+        function setInterestRate() {
+            if (currentNumber === '') return;
+            
+            playButtonSound(800); // Som para funções financeiras
+            
+            interestRate = parseFloat(currentNumber) / 100; // Converte para decimal
+            currentNumber = '';
+            updateDisplay('i = ' + (interestRate * 100).toFixed(2) + '%');
+            shouldResetDisplay = true;
+        }
+
+        function setPeriods() {
+            if (currentNumber === '') return;
+            
+            playButtonSound(800);
+            
+            periods = parseInt(currentNumber);
+            currentNumber = '';
+            updateDisplay('n = ' + periods);
+            shouldResetDisplay = true;
+        }
+
+        function calculatePMT() {
+            playButtonSound(800);
+            
+            if (interestRate === 0 || periods === 0) {
+                alert('Erro: Defina primeiro a taxa (i) e períodos (n)');
+                return;
+            }
+            
+            if (currentNumber !== '') {
+                presentValue = parseFloat(currentNumber);
+            }
+            
+            // Fórmula PMT: PMT = PV * [i(1+i)^n] / [(1+i)^n - 1]
+            const factor = Math.pow(1 + interestRate, periods);
+            const pmt = presentValue * (interestRate * factor) / (factor - 1);
+            
+            currentNumber = pmt.toFixed(2);
+            updateDisplay('PMT = ' + currentNumber);
+            shouldResetDisplay = true;
+        }
+
+        function setInitialCF() {
+            if (currentNumber === '') return;
+            
+            playButtonSound(800);
+            
+            initialCF = parseFloat(currentNumber);
+            currentNumber = '';
+            updateDisplay('CFo = ' + initialCF.toFixed(2));
+            shouldResetDisplay = true;
+        }
+
+        function changeSign() {
+            if (currentNumber === '') return;
+            
+            playButtonSound(800);
+            
+            const num = parseFloat(currentNumber);
+            currentNumber = (-num).toString();
+            updateDisplay(currentNumber);
+        }
+
+        function setIntermediateCF() {
+            if (currentNumber === '') return;
+            
+            playButtonSound(800);
+            
+            intermediateCF = parseFloat(currentNumber);
+            currentNumber = '';
+            updateDisplay('CFi = ' + intermediateCF.toFixed(2));
+            shouldResetDisplay = true;
+        }
+
+        function setPresentValue() {
+            if (currentNumber === '') return;
+            
+            playButtonSound(800);
+            
+            presentValue = parseFloat(currentNumber);
+            currentNumber = '';
+            updateDisplay('PV = ' + presentValue.toFixed(2));
+            shouldResetDisplay = true;
+        }
+
+        function setFutureValue() {
+            if (currentNumber === '') return;
+            
+            playButtonSound(800);
+            
+            futureValue = parseFloat(currentNumber);
+            currentNumber = '';
+            updateDisplay('FV = ' + futureValue.toFixed(2));
+            shouldResetDisplay = true;
+        }
+
+        // Adicionar suporte ao teclado
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+            
+            if (key >= '0' && key <= '9') {
+                appendNumber(key);
+            } else if (key === '+' || key === '-') {
+                setOperator(key);
+            } else if (key === '*' || key === '×') {
+                setOperator('×');
+            } else if (key === '/') {
+                setOperator('÷');
+            } else if (key === '^') {
+                power();
+            } else if (key === 'Enter' || key === '=') {
+                calculate();
+            } else if (key === 'Escape' || key === 'c' || key === 'C') {
+                clearDisplay();
+            } else if (key === 'i' || key === 'I') {
+                setInterestRate();
+            } else if (key === 'n' || key === 'N') {
+                setPeriods();
+            } else if (key === 'p' || key === 'P') {
+                calculatePMT();
+            } else if (key === 'f' || key === 'F') {
+                setInitialCF();
+            } else if (key === 's' || key === 'S') {
+                changeSign();
+            } else if (key === 'm' || key === 'M') {
+                setIntermediateCF();
+            } else if (key === 'v' || key === 'V') {
+                setPresentValue();
+            } else if (key === 'u' || key === 'U') {
+                setFutureValue();
+            }
+        });
+    </script>
+</body>
+</html>
